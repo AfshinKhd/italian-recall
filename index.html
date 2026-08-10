@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#f4f1ea" />
+  <meta name="description" content="Personal Italian active-recall and spaced-repetition trainer with private OneDrive sync." />
+  <title>Italian Recall</title>
+  <style>
+    :root {
+      --bg:#f4f1ea; --surface:rgba(255,255,255,.86); --surface-solid:#fffdf9;
+      --text:#1d211f; --muted:#6d746f; --line:#dedbd3; --accent:#1c7054;
+      --accent-2:#165a45; --soft:#e8f2ed; --warning:#8c5b12; --danger:#9c3f3f;
+      --shadow:0 20px 50px rgba(36,43,39,.10); --radius:24px;
+    }
+    @media (prefers-color-scheme: dark) {
+      :root { --bg:#151816; --surface:rgba(32,36,33,.92); --surface-solid:#202421;
+        --text:#f0f2ef; --muted:#a5ada8; --line:#39403b; --accent:#68c49f;
+        --accent-2:#8ed7b9; --soft:#263c33; --warning:#e2b35e; --danger:#ec9393;
+        --shadow:0 20px 50px rgba(0,0,0,.30); }
+    }
+    *{box-sizing:border-box} html,body{margin:0;min-height:100%;background:var(--bg);color:var(--text);
+      font-family:Inter,ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
+    body{min-height:100vh;min-height:100dvh;display:flex;justify-content:center;
+      padding:max(18px,env(safe-area-inset-top)) 18px max(22px,env(safe-area-inset-bottom));
+      background:radial-gradient(circle at 10% 0%,rgba(28,112,84,.10),transparent 33%),
+      radial-gradient(circle at 100% 100%,rgba(28,112,84,.08),transparent 28%),var(--bg)}
+    button,select{font:inherit} button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .app{width:min(760px,100%);display:flex;flex-direction:column;gap:16px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:2px 2px 0}
+    .brand{display:flex;align-items:center;gap:11px;min-width:0}.mark{width:38px;height:38px;border-radius:12px;
+      display:grid;place-items:center;background:var(--accent);color:white;font-weight:800;letter-spacing:-.04em;
+      box-shadow:0 8px 20px rgba(28,112,84,.22);flex:0 0 auto}.brand h1{margin:0;font-size:clamp(20px,4vw,25px);
+      letter-spacing:-.04em;line-height:1}.brand p{margin:5px 0 0;color:var(--muted);font-size:12px}
+    .header-actions{display:flex;align-items:center;gap:8px}.sync-chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);
+      background:var(--surface);border-radius:999px;padding:8px 10px;font-size:11px;color:var(--muted);white-space:nowrap}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--muted)}.dot.ok{background:var(--accent)}.dot.warn{background:var(--warning)}
+    .icon-btn{border:1px solid var(--line);background:var(--surface);color:var(--text);width:42px;height:42px;border-radius:13px;
+      display:grid;place-items:center;transition:.15s ease}.icon-btn:hover{transform:translateY(-1px)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.stat{background:var(--surface);border:1px solid var(--line);
+      border-radius:16px;padding:12px 14px;backdrop-filter:blur(12px)}.stat strong{display:block;font-size:20px;letter-spacing:-.04em}
+    .stat span{display:block;color:var(--muted);font-size:11px;margin-top:2px}.progress-shell{height:6px;border-radius:999px;background:var(--line);overflow:hidden}
+    .progress-bar{width:0;height:100%;background:var(--accent);border-radius:inherit;transition:width .25s ease}
+    .card{position:relative;min-height:450px;background:var(--surface-solid);border:1px solid var(--line);border-radius:var(--radius);
+      box-shadow:var(--shadow);padding:clamp(22px,5vw,38px);display:flex;flex-direction:column;justify-content:space-between;overflow:hidden}
+    .card::after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-80px;bottom:-95px;background:var(--soft);opacity:.7;pointer-events:none}
+    .topline{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:25px;position:relative;z-index:1}
+    .pill-row{display:flex;gap:6px;flex-wrap:wrap}.pill{padding:7px 10px;border-radius:999px;background:var(--soft);color:var(--accent-2);font-size:10px;font-weight:750;
+      letter-spacing:.03em;text-transform:uppercase}.counter{color:var(--muted);font-size:12px;white-space:nowrap}
+    .prompt-wrap{text-align:center;padding:12px 0 18px;position:relative;z-index:1}.prompt-label{color:var(--muted);font-size:13px;margin-bottom:9px}
+    .prompt{margin:0;font-size:clamp(42px,10vw,72px);line-height:.98;letter-spacing:-.055em;font-weight:780;overflow-wrap:anywhere}
+    .tense-hint{margin:13px auto 0;display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 10px;color:var(--muted);font-size:11px}
+    .micro-hint{color:var(--muted);font-size:13px;margin-top:12px;min-height:20px}.answer{display:none;position:relative;z-index:1;margin-top:5px}.answer.visible{display:block}
+    .answer-main{text-align:center;margin-bottom:16px}.answer-main .italian{font-size:clamp(30px,7vw,44px);font-weight:770;letter-spacing:-.04em}.answer-main .meaning{margin-top:5px;color:var(--muted);font-size:14px}
+    .meta-row{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:11px auto 0}.meta-tag{font-size:10px;color:var(--muted);padding:5px 8px;border:1px solid var(--line);border-radius:999px}
+    .forms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:17px 0}.form{border:1px solid var(--line);border-radius:13px;padding:10px 11px;background:color-mix(in srgb,var(--surface-solid) 88%,var(--soft) 12%);min-width:0}
+    .form span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}.form strong{display:block;font-size:16px;overflow-wrap:anywhere}
+    .example{margin:15px auto 0;max-width:560px;color:var(--muted);text-align:center;font-size:13px;font-style:italic;line-height:1.45}.controls{position:relative;z-index:1;margin-top:26px}
+    .show-btn{width:100%;border:none;border-radius:15px;background:var(--accent);color:white;padding:15px 18px;font-weight:750;box-shadow:0 10px 22px rgba(28,112,84,.18)}
+    .rating{display:none;grid-template-columns:repeat(4,1fr);gap:8px}.rating.visible{display:grid}.rate-btn{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:14px;padding:11px 6px 9px;min-width:0}
+    .rate-btn strong{display:block;font-size:12px;margin-bottom:3px}.rate-btn span{color:var(--muted);font-size:10px}.rate-btn.again strong{color:var(--danger)}.rate-btn.hard strong{color:var(--warning)}.rate-btn.good strong,.rate-btn.easy strong{color:var(--accent-2)}
+    .empty,.setup{display:none;text-align:center;padding:48px 15px;position:relative;z-index:1}.empty.visible,.setup.visible{display:block}.round-icon{width:68px;height:68px;margin:0 auto 17px;border-radius:50%;background:var(--soft);display:grid;place-items:center;color:var(--accent);font-size:28px;font-weight:800}
+    .empty h2,.setup h2{margin:0;font-size:28px;letter-spacing:-.04em}.empty p,.setup p{color:var(--muted);max-width:470px;margin:10px auto 22px;line-height:1.5;font-size:14px}
+    .secondary-btn,.primary-btn{border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:13px;padding:11px 14px;font-weight:650}.primary-btn{border:none;background:var(--accent);color:white}
+    .footer-tip{color:var(--muted);text-align:center;font-size:11px;line-height:1.5;padding:0 8px}.notice{display:none;padding:12px 14px;border:1px solid var(--line);background:var(--surface);border-radius:14px;color:var(--muted);font-size:12px;line-height:1.45}.notice.visible{display:block}.notice.error{border-color:rgba(156,63,63,.45);color:var(--danger)}
+    dialog{width:min(560px,calc(100% - 28px));max-height:calc(100dvh - 36px);border:1px solid var(--line);border-radius:20px;background:var(--surface-solid);color:var(--text);padding:0;box-shadow:var(--shadow)}dialog::backdrop{background:rgba(0,0,0,.30);backdrop-filter:blur(3px)}
+    .dialog-head{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}.dialog-head h2{margin:0;font-size:18px}.dialog-body{padding:20px;display:grid;gap:16px;overflow:auto}.field label{display:block;font-size:12px;color:var(--muted);margin-bottom:7px}select{width:100%;border:1px solid var(--line);background:var(--surface);color:var(--text);border-radius:12px;padding:11px 12px}.button-row{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}.account-box{border:1px solid var(--line);border-radius:14px;padding:13px;background:var(--surface)}.account-title{display:flex;align-items:center;justify-content:space-between;gap:10px}.account-title strong{font-size:13px}.account-box p{margin:7px 0 0;color:var(--muted);font-size:11px;line-height:1.5}.small-note{color:var(--muted);font-size:11px;line-height:1.5;margin:0}.danger{color:var(--danger)}
+    @media(max-width:620px){body{padding-left:12px;padding-right:12px}.brand p{display:none}.sync-chip span{display:none}.sync-chip{padding:9px}.stats{gap:7px}.stat{padding:10px 11px}.stat strong{font-size:18px}.card{min-height:500px;border-radius:20px;padding:22px 17px}.topline{margin-bottom:20px}.forms{grid-template-columns:repeat(2,1fr)}.rating{gap:6px}.rate-btn{padding:11px 2px 9px}.rate-btn strong{font-size:11px}.rate-btn span{font-size:9px}}
+    @media(max-width:380px){.prompt{font-size:39px}.forms{gap:6px}.form{padding:9px}.stat{padding:9px}.button-row{grid-template-columns:1fr}}
+  </style>
+</head>
+<body>
+<main class="app">
+  <header>
+    <div class="brand"><div class="mark">IT</div><div><h1>Italian Recall</h1><p>Active recall · spaced repetition · private OneDrive sync</p></div></div>
+    <div class="header-actions"><div class="sync-chip" id="syncChip" title="Sync status"><i class="dot" id="syncDot"></i><span id="syncText">Local</span></div><button class="icon-btn" id="settingsBtn" aria-label="Open settings">⚙</button></div>
+  </header>
+
+  <section class="stats"><div class="stat"><strong id="dueStat">0</strong><span>Due now</span></div><div class="stat"><strong id="newStat">0</strong><span>New</span></div><div class="stat"><strong id="learnedStat">0</strong><span>Learned</span></div></section>
+  <div class="progress-shell"><div class="progress-bar" id="progressBar"></div></div>
+  <div class="notice" id="notice"></div>
+
+  <section class="card">
+    <div id="studyContent">
+      <div class="topline"><div class="pill-row"><span class="pill" id="typePill">Verb</span><span class="pill" id="tensePill">Present</span></div><span class="counter" id="counter">1 / 10</span></div>
+      <div class="prompt-wrap"><div class="prompt-label" id="promptLabel">English → Italian</div><h2 class="prompt" id="prompt">see</h2><div class="tense-hint" id="tenseHint">Present tense</div><div class="micro-hint" id="microHint">Recall the infinitive and all six forms.</div></div>
+      <div class="answer" id="answer"><div class="answer-main"><div class="italian" id="answerItalian">vedere</div><div class="meaning" id="answerMeaning">see</div><div class="meta-row" id="metaRow"></div></div><div class="forms" id="forms"></div><div class="example" id="example"></div></div>
+      <div class="controls"><button class="show-btn" id="showBtn">Show answer <span style="opacity:.7">· Space</span></button><div class="rating" id="rating">
+        <button class="rate-btn again" data-rating="again"><strong>Again</strong><span id="againInterval">10 min</span></button>
+        <button class="rate-btn hard" data-rating="hard"><strong>Hard</strong><span id="hardInterval">1 day</span></button>
+        <button class="rate-btn good" data-rating="good"><strong>Good</strong><span id="goodInterval">3 days</span></button>
+        <button class="rate-btn easy" data-rating="easy"><strong>Easy</strong><span id="easyInterval">7 days</span></button>
+      </div></div>
+    </div>
+    <div class="empty" id="emptyState"><div class="round-icon">✓</div><h2>Done for now</h2><p>No selected cards are due. The app will automatically bring them back according to your review intervals.</p><button class="secondary-btn" id="studyAheadBtn">Study ahead</button></div>
+    <div class="setup" id="setupState"><div class="round-icon">☁</div><h2>Connect OneDrive</h2><p id="setupMessage">Add your Microsoft Entra client ID in config.js, publish the page, then connect OneDrive from Settings.</p><button class="primary-btn" id="setupSettingsBtn">Open settings</button></div>
+  </section>
+  <div class="footer-tip">Keyboard: <b>Space</b> reveal · <b>1</b> Again · <b>2</b> Hard · <b>3</b> Good · <b>4</b> Easy</div>
+</main>
+
+<dialog id="settingsDialog">
+  <div class="dialog-head"><h2>Settings</h2><button class="icon-btn" id="closeSettings" aria-label="Close">×</button></div>
+  <div class="dialog-body">
+    <div class="account-box"><div class="account-title"><strong id="accountTitle">OneDrive sync</strong><span class="pill" id="accountStatus">Not connected</span></div><p id="accountDetail">Your progress is safe locally until you connect. Once connected, words and progress are synchronized with your own OneDrive App Folder.</p></div>
+    <div class="button-row"><button class="primary-btn" id="signInBtn">Connect OneDrive</button><button class="secondary-btn" id="syncNowBtn">Sync now</button></div>
+    <div class="button-row"><button class="secondary-btn" id="openFolderBtn">Open OneDrive folder</button><button class="secondary-btn" id="reloadWordsBtn">Reload words</button></div>
+
+    <div class="field"><label for="directionSelect">Recall direction</label><select id="directionSelect"><option value="mixed">Mixed — mostly English → Italian</option><option value="en-it">English → Italian</option><option value="it-en">Italian → English</option></select></div>
+    <div class="field"><label for="typeSelect">Card type</label><select id="typeSelect"><option value="all">Verbs + vocabulary</option><option value="verb">Verbs only</option><option value="vocab">Vocabulary only</option></select></div>
+    <div class="field"><label for="tenseSelect">Verb tense</label><select id="tenseSelect"><option value="presente">Present</option><option value="passato_prossimo">Passato prossimo</option><option value="futuro_semplice">Future</option><option value="mixed">Mixed tenses</option></select></div>
+    <div class="field"><label for="newLimitSelect">Maximum new review units per session</label><select id="newLimitSelect"><option value="5">5</option><option value="10">10</option><option value="15">15</option><option value="25">25</option><option value="9999">All</option></select></div>
+    <button class="secondary-btn danger" id="resetBtn">Reset study progress</button>
+    <p class="small-note" id="storageNote">Custom <b>words.json</b> and <b>progress.json</b> are created automatically inside the signed-in user's OneDrive App Folder. No manual import/export is needed.</p>
+  </div>
+</dialog>
+
+<script src="config.js"></script>
+<script src="starter-words.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
