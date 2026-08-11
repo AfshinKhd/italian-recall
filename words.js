@@ -1,8 +1,8 @@
-// Starter deck used only when a user's private OneDrive words.json does not exist yet.
-// After first sign-in, the app automatically creates words.json in the user's OneDrive App Folder.
-// The user can then edit that PRIVATE words.json; this starter file stays public with the web app.
+// Italian Recall deck.
+// Edit this file to add verbs, vocabulary, adjectives, expressions, and future tenses.
+// Keep every `id` stable after you start studying it, because progress is keyed by id + tense.
 
-window.ITALIAN_RECALL_STARTER_WORDS = [
+window.ITALIAN_RECALL_WORDS = [
   {
     "id": "verb-essere",
     "kind": "verb",

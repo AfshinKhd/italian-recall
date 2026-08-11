@@ -1,0 +1,32 @@
+# Private study data
+progress.json
+progress-*.json
+
+# Local/editor files
+.vscode/
+.idea/
+*.code-workspace
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Codex/local agent runtime
+.codex/
+.codex-log/
+
+# Logs / temporary files
+*.log
+*.tmp
+*.bak
+*~
+*.zip
+
+# Optional JS tooling, if ever used locally
+node_modules/
+dist/
+coverage/
+
+# Secrets / local configuration
+.env
+.env.*
+!.env.example
