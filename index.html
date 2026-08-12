@@ -64,21 +64,33 @@
       font-weight:750;letter-spacing:.03em;text-transform:uppercase}
     .counter{color:var(--muted);font-size:12px;white-space:nowrap}
     .prompt-wrap{text-align:center;padding:12px 0 18px;position:relative;z-index:1}
-    .prompt-label{color:var(--muted);font-size:13px;margin-bottom:9px}
     .prompt{margin:0;font-size:clamp(42px,10vw,72px);line-height:.98;letter-spacing:-.055em;font-weight:780;overflow-wrap:anywhere}
     .tense-hint{margin:13px auto 0;display:inline-block;border:1px solid var(--line);border-radius:999px;padding:6px 10px;
       color:var(--muted);font-size:11px}
     .micro-hint{color:var(--muted);font-size:13px;margin-top:12px;min-height:20px}
     .answer{display:none;position:relative;z-index:1;margin-top:5px}.answer.visible{display:block}
     .answer-main{text-align:center;margin-bottom:16px}.answer-main .italian{font-size:clamp(30px,7vw,44px);font-weight:770;letter-spacing:-.04em}
-    .answer-main .meaning{margin-top:5px;color:var(--muted);font-size:14px}
-    .meta-row{display:flex;justify-content:center;gap:6px;flex-wrap:wrap;margin:11px auto 0}
-    .meta-tag{font-size:10px;color:var(--muted);padding:5px 8px;border:1px solid var(--line);border-radius:999px}
     .forms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:17px 0}
     .form{border:1px solid var(--line);border-radius:13px;padding:10px 11px;background:color-mix(in srgb,var(--surface-solid) 88%,var(--soft) 12%);min-width:0}
     .form span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
     .form strong{display:block;font-size:16px;overflow-wrap:anywhere}
-    .example{margin:15px auto 0;max-width:560px;color:var(--muted);text-align:center;font-size:13px;font-style:italic;line-height:1.45}
+    .learning-details{display:grid;gap:10px;margin:15px auto 0;max-width:600px}
+    .detail-box{display:none;border:1px solid var(--line);border-radius:13px;padding:11px 13px;background:var(--surface);font-size:12px;line-height:1.5}
+    .detail-box:not(:empty){display:block}.detail-box>strong,.detail-label{display:block;color:var(--accent-2);font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+    .detail-box ul{margin:0;padding-left:18px}.detail-box li+li{margin-top:4px}
+    .recall-map{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:22px;margin-top:9px;padding:5px 2px}
+    .recall-family,.recall-keyword{display:grid;place-items:center;text-align:center;border-radius:999px;border:1px solid var(--line)}
+    .recall-family{width:88px;height:88px;padding:9px;background:var(--soft);color:var(--accent-2);font-weight:780;font-size:11px;position:relative;z-index:1;box-shadow:0 6px 18px rgba(28,112,84,.09)}
+    .recall-family::after{content:"";position:absolute;left:100%;top:50%;width:23px;border-top:2px solid var(--line)}
+    .recall-branches{display:grid;gap:9px;position:relative;padding:2px 0}
+    .recall-branches::before{content:"";position:absolute;left:-12px;top:22px;bottom:22px;border-left:2px solid var(--line)}
+    .recall-branch{display:grid;grid-template-columns:minmax(68px,92px) minmax(0,1fr);align-items:center;gap:17px;position:relative}
+    .recall-branch::before{content:"";position:absolute;right:100%;top:50%;width:13px;border-top:2px solid var(--line)}
+    .recall-keyword{min-height:45px;padding:7px 9px;background:var(--surface-solid);font-weight:720;position:relative;z-index:1}
+    .recall-keyword::after{content:"";position:absolute;left:100%;top:50%;width:18px;border-top:1px solid var(--line)}
+    .recall-node-detail{display:block;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface-solid);color:var(--muted);line-height:1.35;position:relative}
+    .recall-branch.current .recall-keyword{background:var(--accent);border-color:var(--accent);color:white;box-shadow:0 5px 14px rgba(28,112,84,.2)}
+    .recall-branch.current .recall-node-detail{border-color:color-mix(in srgb,var(--accent) 48%,var(--line));background:var(--soft);color:var(--text)}
     .controls{position:relative;z-index:1;margin-top:26px}
     .show-btn{width:100%;border:none;border-radius:15px;background:var(--accent);color:white;padding:15px 18px;font-weight:750;
       box-shadow:0 10px 22px rgba(28,112,84,.18)}
@@ -111,6 +123,9 @@
       .stats{gap:7px}.stat{padding:10px 11px}.stat strong{font-size:18px}.card{min-height:500px;border-radius:20px;padding:22px 17px}
       .topline{margin-bottom:20px}.forms{grid-template-columns:repeat(2,1fr)}.rating{gap:6px}.rate-btn{padding:11px 2px 9px}
       .rate-btn strong{font-size:11px}.rate-btn span{font-size:9px}
+      .recall-map{grid-template-columns:76px minmax(0,1fr);gap:17px}.recall-family{width:72px;height:72px;font-size:10px}
+      .recall-family::after{width:18px}.recall-branches::before{left:-9px}.recall-branch{grid-template-columns:72px minmax(0,1fr);gap:13px}
+      .recall-keyword{font-size:10px;padding:6px}.recall-keyword::after{width:14px}.recall-node-detail{font-size:10px;padding:7px 8px}
     }
     @media(max-width:380px){.prompt{font-size:39px}.forms{gap:6px}.form{padding:9px}.stat{padding:9px}.button-row{grid-template-columns:1fr}}
   </style>
@@ -136,12 +151,11 @@
   <section class="card">
     <div id="studyContent">
       <div class="topline">
-        <div class="pill-row"><span class="pill" id="typePill">Verb</span><span class="pill" id="tensePill">Present</span></div>
+        <div class="pill-row"><span class="pill" id="directionPill">English → Italian</span><span class="pill" id="typePill">Verb</span><span class="pill" id="tensePill">Present</span></div>
         <span class="counter" id="counter">1 / 10</span>
       </div>
 
       <div class="prompt-wrap">
-        <div class="prompt-label" id="promptLabel">English → Italian</div>
         <h2 class="prompt" id="prompt">see</h2>
         <div class="tense-hint" id="tenseHint">Present tense</div>
         <div class="micro-hint" id="microHint">Recall the infinitive and all six forms.</div>
@@ -150,11 +164,13 @@
       <div class="answer" id="answer">
         <div class="answer-main">
           <div class="italian" id="answerItalian">vedere</div>
-          <div class="meaning" id="answerMeaning">see</div>
-          <div class="meta-row" id="metaRow"></div>
         </div>
         <div class="forms" id="forms"></div>
-        <div class="example" id="example"></div>
+        <div class="learning-details">
+          <div class="detail-box" id="notes"></div>
+          <div class="detail-box" id="examples"></div>
+          <div class="detail-box" id="activeRecall"></div>
+        </div>
       </div>
 
       <div class="controls">
@@ -199,18 +215,27 @@
     <div class="field">
       <label for="directionSelect">Recall direction</label>
       <select id="directionSelect">
-        <option value="mixed">Mixed — mostly English → Italian</option>
         <option value="en-it">English → Italian</option>
+        <option value="mixed">Mixed — mostly English → Italian</option>
         <option value="it-en">Italian → English</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label for="studyOrderSelect">Study order</label>
+      <select id="studyOrderSelect">
+        <option value="ordered">Deck order (default)</option>
+        <option value="shuffle">Shuffle</option>
       </select>
     </div>
 
     <div class="field">
       <label for="typeSelect">Card type</label>
       <select id="typeSelect">
-        <option value="all">Verbs + vocabulary</option>
+        <option value="all">Verbs + vocabulary + grammar</option>
         <option value="verb">Verbs only</option>
         <option value="vocab">Vocabulary only</option>
+        <option value="grammar">Grammar tips only</option>
       </select>
     </div>
 

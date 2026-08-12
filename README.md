@@ -27,6 +27,10 @@ The app always saves locally first, then mirrors/merges progress with `progress.
 
 Edit `words.js`, then refresh the page.
 
+Every card has an `order` number for the default deck order. Examples and notes use
+arrays, and related cards share an `activeRecall` family with one detail per card.
+Shuffle and a separate Grammar tips filter are available in Settings.
+
 Verbs support:
 - Present
 - Passato prossimo

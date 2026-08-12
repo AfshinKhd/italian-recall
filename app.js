@@ -12,10 +12,11 @@
   const HANDLE_KEY = "progressFile";
 
   const DEFAULT_SETTINGS = {
-    direction: "mixed",
+    direction: "en-it",
     type: "all",
     tense: "presente",
-    newLimit: 10
+    newLimit: 10,
+    studyOrder: "ordered"
   };
 
   const el = id => document.getElementById(id);
@@ -138,9 +139,17 @@
   function units() {
     const out = [];
     const settings = state.doc.settings;
+    const orderedWords = state.words
+      .map((word, sourceIndex) => ({ word, sourceIndex }))
+      .sort((a, b) => {
+        const aOrder = Number.isFinite(Number(a.word.order)) ? Number(a.word.order) : 100000;
+        const bOrder = Number.isFinite(Number(b.word.order)) ? Number(b.word.order) : 100000;
+        return aOrder - bOrder || a.sourceIndex - b.sourceIndex;
+      })
+      .map(item => item.word);
 
-    for (const word of state.words) {
-      if (settings.type !== "all" && word.kind !== settings.type) continue;
+    for (const word of orderedWords) {
+      if (!matchesCardType(word, settings.type)) continue;
 
       if (word.kind === "verb") {
         const tenseKeys = settings.tense === "mixed"
@@ -164,6 +173,15 @@
     return out;
   }
 
+  function matchesCardType(word, selectedType) {
+    if (selectedType === "all") return true;
+    if (selectedType === "grammar") return word.category === "grammar tip";
+    if (selectedType === "vocab") {
+      return word.kind === "vocab" && word.category !== "grammar tip";
+    }
+    return word.kind === selectedType;
+  }
+
   function progressFor(key) {
     return {
       reps: 0,
@@ -185,36 +203,44 @@
     const due = [];
     const fresh = [];
     const future = [];
+    const availableUnits = units();
 
-    for (const unit of units()) {
+    for (const unit of availableUnits) {
       const p = progressFor(unit.key);
       if (isNew(unit)) fresh.push(unit);
       else if (p.due <= currentTime) due.push(unit);
       else future.push(unit);
     }
 
-    due.sort((a, b) => progressFor(a.key).due - progressFor(b.key).due);
-    future.sort((a, b) => progressFor(a.key).due - progressFor(b.key).due);
-
     const newLimit = Number(state.doc.settings.newLimit) || 10;
-    let queue = [...due, ...fresh.slice(0, newLimit)];
+    const selectedFresh = fresh.slice(0, newLimit);
+    let queue;
 
-    if (studyAhead && queue.length === 0) {
+    if (studyAhead && due.length === 0 && selectedFresh.length === 0) {
       queue = future.slice(0, Math.min(12, future.length));
+    } else if (state.doc.settings.studyOrder === "shuffle") {
+      queue = [...due, ...selectedFresh];
+    } else {
+      const selectedKeys = new Set([...due, ...selectedFresh].map(unit => unit.key));
+      queue = availableUnits.filter(unit => selectedKeys.has(unit.key));
     }
 
-    state.queue = softShuffle(queue);
+    state.queue = state.doc.settings.studyOrder === "shuffle"
+      ? shuffle(queue)
+      : queue;
     state.done = 0;
     state.initialCount = state.queue.length;
     refreshStats();
     nextCard();
   }
 
-  function softShuffle(items) {
-    return items
-      .map((item, index) => ({ item, key: index + Math.random() * 1.6 }))
-      .sort((a, b) => a.key - b.key)
-      .map(x => x.item);
+  function shuffle(items) {
+    const shuffled = [...items];
+    for (let i = shuffled.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    }
+    return shuffled;
   }
 
   function chooseDirection() {
@@ -248,11 +274,11 @@
     const reverse = state.currentDirection === "it-en";
     const isVerb = word.kind === "verb";
 
+    el("directionPill").textContent = reverse ? "Italian → English" : "English → Italian";
     el("typePill").textContent = isVerb ? "Verb" : (word.category || "Vocabulary");
     el("tensePill").style.display = isVerb ? "" : "none";
     el("tensePill").textContent = isVerb ? (unit.tenseData.label || unit.tense) : "";
 
-    el("promptLabel").textContent = reverse ? "Italian → English" : "English → Italian";
     el("prompt").textContent = reverse ? word.italian : word.english;
 
     el("tenseHint").style.display = isVerb ? "inline-block" : "none";
@@ -264,10 +290,11 @@
           : "Recall the infinitive and all six forms.")
       : (reverse ? "Recall the English meaning." : "Recall the Italian word.");
 
-    el("answerItalian").textContent = word.italian;
-    el("answerMeaning").textContent = word.english;
+    el("answerItalian").textContent = reverse ? word.english : word.italian;
     el("forms").innerHTML = "";
-    el("metaRow").innerHTML = "";
+    el("notes").replaceChildren();
+    el("examples").replaceChildren();
+    el("activeRecall").replaceChildren();
 
     if (isVerb) {
       const forms = unit.tenseData.forms || {};
@@ -290,30 +317,100 @@
       });
 
       el("forms").style.display = "grid";
-      addMeta(unit.tenseData.label || unit.tense);
     } else {
       el("forms").style.display = "none";
-      [
-        word.category,
-        word.article ? `article: ${word.article}` : null,
-        word.gender,
-        word.plural ? `plural: ${word.plural}` : null
-      ].filter(Boolean).forEach(addMeta);
     }
 
-    el("example").textContent = isVerb
-      ? (unit.tenseData.example || word.example || "")
-      : (word.example || "");
+    renderLearningDetails(unit);
 
     el("counter").textContent = `${state.done + 1} / ${Math.max(state.initialCount, state.done + 1)}`;
     updateIntervalLabels(unit);
   }
 
-  function addMeta(text) {
-    const tag = document.createElement("span");
-    tag.className = "meta-tag";
-    tag.textContent = text;
-    el("metaRow").appendChild(tag);
+  function asList(value) {
+    if (Array.isArray(value)) return value.filter(Boolean);
+    return value ? [value] : [];
+  }
+
+  function renderLabeledList(targetId, label, values) {
+    const target = el(targetId);
+    const items = asList(values);
+    if (!items.length) return;
+
+    const heading = document.createElement("strong");
+    heading.textContent = label;
+    target.appendChild(heading);
+
+    const list = document.createElement("ul");
+    items.forEach(value => {
+      const item = document.createElement("li");
+      item.textContent = value;
+      list.appendChild(item);
+    });
+    target.appendChild(list);
+  }
+
+  function renderLearningDetails(unit) {
+    const { word, tenseData } = unit;
+    const tenseExamples = tenseData
+      ? [...asList(tenseData.example), ...asList(tenseData.examples)]
+      : [];
+    const examples = tenseExamples.length
+      ? [...tenseExamples, ...asList(word.examples)]
+      : [...asList(word.example), ...asList(word.examples)];
+    const notes = [
+      ...(word.article ? [`Article: ${word.article}`] : []),
+      ...(word.gender ? [`Gender: ${word.gender}`] : []),
+      ...(word.plural ? [`Plural: ${word.plural}`] : []),
+      ...asList(tenseData?.note),
+      ...asList(tenseData?.notes),
+      ...asList(word.note),
+      ...asList(word.notes)
+    ];
+
+    renderLabeledList("notes", notes.length === 1 ? "Note" : "Notes", notes);
+    renderLabeledList("examples", examples.length === 1 ? "Example" : "Examples", examples);
+    renderActiveRecall(word);
+  }
+
+  function renderActiveRecall(word) {
+    const recall = word.activeRecall;
+    if (!recall?.family) return;
+
+    const related = state.words.filter(candidate =>
+      candidate.activeRecall?.family === recall.family
+    );
+    const section = el("activeRecall");
+    const title = document.createElement("strong");
+    title.className = "detail-label";
+    title.textContent = "Active Recall family";
+
+    const map = document.createElement("div");
+    map.className = "recall-map";
+    const family = document.createElement("div");
+    family.className = "recall-family";
+    family.textContent = recall.family;
+
+    const branches = document.createElement("div");
+    branches.className = "recall-branches";
+    related.forEach(candidate => {
+      const branch = document.createElement("div");
+      branch.className = `recall-branch${candidate.id === word.id ? " current" : ""}`;
+
+      const keyword = document.createElement("span");
+      keyword.className = "recall-keyword";
+      keyword.textContent = candidate.italian;
+
+      const detail = document.createElement("span");
+      detail.className = "recall-node-detail";
+      detail.textContent = candidate.activeRecall.detail || candidate.activeRecall.position || "Related word";
+
+      branch.append(keyword, detail);
+      branches.appendChild(branch);
+    });
+
+    map.append(family, branches);
+    section.append(title, map);
   }
 
   function reveal() {
@@ -426,6 +523,7 @@
     el("typeSelect").value = s.type;
     el("tenseSelect").value = s.tense;
     el("newLimitSelect").value = String(s.newLimit);
+    el("studyOrderSelect").value = s.studyOrder;
   }
 
   function saveSettings() {
@@ -434,6 +532,7 @@
     s.type = el("typeSelect").value;
     s.tense = el("tenseSelect").value;
     s.newLimit = Number(el("newLimitSelect").value);
+    s.studyOrder = el("studyOrderSelect").value;
 
     saveLocal({ settingsChanged: true });
     scheduleFileSync();
@@ -759,7 +858,7 @@
   el("settingsBtn").addEventListener("click", () => el("settingsDialog").showModal());
   el("closeSettings").addEventListener("click", () => el("settingsDialog").close());
 
-  ["directionSelect", "typeSelect", "tenseSelect", "newLimitSelect"].forEach(id => {
+  ["directionSelect", "typeSelect", "tenseSelect", "newLimitSelect", "studyOrderSelect"].forEach(id => {
     el(id).addEventListener("change", saveSettings);
   });
 
