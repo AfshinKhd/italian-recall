@@ -29,7 +29,11 @@ Edit `words.js`, then refresh the page.
 
 Every card has an `order` number for the default deck order. Examples and notes use
 arrays, and related cards share an `activeRecall` family with one detail per card.
+Keep recall details short: they appear in a connection map highlighting the current card.
+Notes can also use `{ label: "Position", value: "Before / after verb" }` for labeled
+blocks. Noun articles, gender, and singular/plural forms get their own visual layout.
 Shuffle and a separate Grammar tips filter are available in Settings.
+Sessions include all new review units by default; smaller limits are available in Settings.
 
 Verbs support:
 - Present

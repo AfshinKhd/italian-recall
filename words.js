@@ -2,7 +2,8 @@
 // Keep every id stable after study begins because progress is keyed by id + tense.
 // All cards use the same core fields: id, kind, order, english, and italian.
 // Optional card fields: category, article, gender, plural, examples, notes, and activeRecall.
-// activeRecall uses { family: "...", detail: "..." }; related cards share the same family.
+// activeRecall uses { family: "...", detail: "short keyword cue" }; related cards share the same family.
+// Notes can be plain strings or { label: "...", value: "..." } for labeled blocks.
 // Verbs store examples and optional notes inside each tense.
 
 window.ITALIAN_RECALL_WORDS = [
@@ -14,7 +15,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "dovere",
     "activeRecall": {
       "family": "Modal verbs",
-      "detail": "Expresses obligation or necessity and is normally followed by an infinitive."
+      "detail": "Obligation · + infinitive"
     },
     "tenses": {
       "presente": {
@@ -69,7 +70,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "venire",
     "activeRecall": {
       "family": "Movement verbs",
-      "detail": "Describes movement toward the speaker or toward a destination."
+      "detail": "Toward speaker / destination"
     },
     "tenses": {
       "presente": {
@@ -124,7 +125,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "potere",
     "activeRecall": {
       "family": "Modal verbs",
-      "detail": "Expresses ability or permission and is normally followed by an infinitive."
+      "detail": "Ability / permission · + infinitive"
     },
     "tenses": {
       "presente": {
@@ -179,7 +180,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "sapere",
     "activeRecall": {
       "family": "Knowing and perceiving",
-      "detail": "Use for knowing facts or knowing how to do something."
+      "detail": "Facts · knowing how"
     },
     "tenses": {
       "presente": {
@@ -234,7 +235,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "vedere",
     "activeRecall": {
       "family": "Knowing and perceiving",
-      "detail": "Means to see; its irregular past participle is visto."
+      "detail": "See · irregular participle: visto"
     },
     "tenses": {
       "presente": {
@@ -340,7 +341,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "andare",
     "activeRecall": {
       "family": "Movement verbs",
-      "detail": "Describes movement away from the speaker or toward another place."
+      "detail": "Away from speaker / to another place"
     },
     "tenses": {
       "presente": {
@@ -446,7 +447,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "volere",
     "activeRecall": {
       "family": "Modal verbs",
-      "detail": "Expresses desire or intention and is normally followed by an infinitive."
+      "detail": "Desire / intention · + infinitive"
     },
     "tenses": {
       "presente": {
@@ -604,7 +605,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "sempre",
     "activeRecall": {
       "family": "Frequency adverbs",
-      "detail": "Usually comes after the conjugated verb."
+      "detail": "Usually after conjugated verb"
     },
     "examples": [
       "Io vado sempre al cinema."
@@ -619,14 +620,14 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "spesso",
     "activeRecall": {
       "family": "Frequency adverbs",
-      "detail": "Can come before or after the verb."
+      "detail": "Before / after verb"
     },
     "examples": [
       "Spesso vado al cinema.",
       "Vado spesso al cinema."
     ],
     "notes": [
-      "It can come before or after the verb."
+      { "label": "Position", "value": "Before / after verb" }
     ]
   },
   {
@@ -638,13 +639,13 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "di solito",
     "activeRecall": {
       "family": "Frequency adverbs",
-      "detail": "Often comes at the beginning of the sentence."
+      "detail": "Often at sentence start"
     },
     "examples": [
       "Di solito vado al lavoro in autobus."
     ],
     "notes": [
-      "Often placed at the beginning of the sentence."
+      { "label": "Position", "value": "Often at sentence start" }
     ]
   },
   {
@@ -656,13 +657,13 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "qualche volta",
     "activeRecall": {
       "family": "Frequency adverbs",
-      "detail": "Often comes at the beginning of the sentence."
+      "detail": "Often at sentence start"
     },
     "examples": [
       "Qualche volta vado al cinema."
     ],
     "notes": [
-      "Often placed at the beginning of the sentence."
+      { "label": "Position", "value": "Often at sentence start" }
     ]
   },
   {
@@ -674,13 +675,13 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "mai",
     "activeRecall": {
       "family": "Frequency adverbs",
-      "detail": "Usually follows the conjugated verb; use non before the verb for ‘never’."
+      "detail": "Never: non + verb + mai"
     },
     "examples": [
       "Non ascolto mai la musica."
     ],
     "notes": [
-      "With non, mai usually comes after the conjugated verb."
+      { "label": "Never", "value": "non + conjugated verb + mai" }
     ]
   },
   {
@@ -692,7 +693,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "che ore sono?",
     "activeRecall": {
       "family": "Useful questions",
-      "detail": "Asks the time; most answers begin with sono le."
+      "detail": "Time · sono le…"
     },
     "examples": [
       "Sono le due.",
@@ -701,7 +702,7 @@ window.ITALIAN_RECALL_WORDS = [
       "Sono le tre meno venti."
     ],
     "notes": [
-      "Use sono le for most times; use è l’una for one o’clock."
+      { "label": "Time", "value": "sono le… · one o’clock: è l’una" }
     ]
   },
   {
@@ -713,7 +714,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "quanto viene la camera?",
     "activeRecall": {
       "family": "Useful questions",
-      "detail": "Asks the price; viene means costs in this question."
+      "detail": "Price · viene = costs"
     },
     "examples": [
       "Viene 120 euro a persona."
@@ -728,7 +729,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "qualche + singular",
     "activeRecall": {
       "family": "Choosing ‘some’",
-      "detail": "Qualche is followed by a singular noun, even when it means more than one."
+      "detail": "Singular noun · plural meaning"
     },
     "examples": [
       "Ho qualche domanda."
@@ -743,7 +744,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "alcuni / alcune + plural",
     "activeRecall": {
       "family": "Choosing ‘some’",
-      "detail": "Use alcuni with masculine plural nouns and alcune with feminine plural nouns."
+      "detail": "alcuni: masculine · alcune: feminine"
     },
     "examples": [
       "Ho alcuni libri.",
@@ -1013,7 +1014,7 @@ window.ITALIAN_RECALL_WORDS = [
     "italian": "uscire",
     "activeRecall": {
       "family": "Movement verbs",
-      "detail": "Means to go out or leave an enclosed place."
+      "detail": "Go out / leave an enclosed place"
     },
     "tenses": {
       "presente": {
@@ -1123,7 +1124,7 @@ window.ITALIAN_RECALL_WORDS = [
     "plural": "case",
     "activeRecall": {
       "family": "Home and renting",
-      "detail": "The general word for a house or home."
+      "detail": "House / home"
     },
     "examples": [
       "La casa è vicino al centro."
@@ -1211,7 +1212,7 @@ window.ITALIAN_RECALL_WORDS = [
     "plural": "bollette",
     "activeRecall": {
       "family": "Home and renting",
-      "detail": "A bill for utilities or household services."
+      "detail": "Utility / household bill"
     },
     "examples": [
       "La bolletta è intestata a mio nome."
@@ -1229,7 +1230,7 @@ window.ITALIAN_RECALL_WORDS = [
     "plural": "affitti",
     "activeRecall": {
       "family": "Home and renting",
-      "detail": "The money paid regularly to rent a home."
+      "detail": "Rent payment"
     },
     "examples": [
       "Pago l'affitto ogni mese."
@@ -1278,5 +1279,341 @@ window.ITALIAN_RECALL_WORDS = [
     "examples": [
       "Non fa niente, possiamo farlo domani."
     ]
+  },
+  {
+    "id": "phrase-secondo-me",
+    "kind": "vocab",
+    "order": 400,
+    "category": "expression",
+    "english": "in my opinion / I think",
+    "italian": "secondo me",
+    "notes": [
+      { "label": "Pattern", "value": "secondo + person · secondo me / secondo te" }
+    ],
+    "examples": [
+      "Secondo me, questo libro è interessante."
+    ]
+  },
+  {
+    "id": "verb-spegnere",
+    "kind": "verb",
+    "order": 410,
+    "english": "turn off / switch off",
+    "italian": "spegnere",
+    "activeRecall": {
+      "family": "On / off",
+      "detail": "OFF · luce / TV"
+    },
+    "notes": [
+      { "label": "Use with", "value": "spegnere la luce · spegnere il computer" }
+    ],
+    "tenses": {
+      "presente": {
+        "label": "Present",
+        "forms": {
+          "io": "spengo",
+          "tu": "spegni",
+          "luiLei": "spegne",
+          "noi": "spegniamo",
+          "voi": "spegnete",
+          "loro": "spengono"
+        },
+        "examples": [
+          "Spengo la luce prima di dormire."
+        ]
+      },
+      "passato_prossimo": {
+        "label": "Passato prossimo",
+        "forms": {
+          "io": "ho spento",
+          "tu": "hai spento",
+          "luiLei": "ha spento",
+          "noi": "abbiamo spento",
+          "voi": "avete spento",
+          "loro": "hanno spento"
+        },
+        "notes": [
+          { "label": "Past participle", "value": "spegnere → spento · auxiliary: avere" }
+        ],
+        "examples": [
+          "Ho spento il computer."
+        ]
+      },
+      "futuro_semplice": {
+        "label": "Future",
+        "forms": {
+          "io": "spegnerò",
+          "tu": "spegnerai",
+          "luiLei": "spegnerà",
+          "noi": "spegneremo",
+          "voi": "spegnerete",
+          "loro": "spegneranno"
+        },
+        "examples": [
+          "Spegnerò la TV prima di uscire."
+        ]
+      }
+    }
+  },
+  {
+    "id": "verb-accendere",
+    "kind": "verb",
+    "order": 420,
+    "english": "turn on / switch on",
+    "italian": "accendere",
+    "activeRecall": {
+      "family": "On / off",
+      "detail": "ON · luce / TV"
+    },
+    "notes": [
+      { "label": "Use with", "value": "accendere la luce · accendere il computer" }
+    ],
+    "tenses": {
+      "presente": {
+        "label": "Present",
+        "forms": {
+          "io": "accendo",
+          "tu": "accendi",
+          "luiLei": "accende",
+          "noi": "accendiamo",
+          "voi": "accendete",
+          "loro": "accendono"
+        },
+        "examples": [
+          "Accendo la luce."
+        ]
+      },
+      "passato_prossimo": {
+        "label": "Passato prossimo",
+        "forms": {
+          "io": "ho acceso",
+          "tu": "hai acceso",
+          "luiLei": "ha acceso",
+          "noi": "abbiamo acceso",
+          "voi": "avete acceso",
+          "loro": "hanno acceso"
+        },
+        "notes": [
+          { "label": "Past participle", "value": "accendere → acceso · auxiliary: avere" }
+        ],
+        "examples": [
+          "Ho acceso il computer."
+        ]
+      },
+      "futuro_semplice": {
+        "label": "Future",
+        "forms": {
+          "io": "accenderò",
+          "tu": "accenderai",
+          "luiLei": "accenderà",
+          "noi": "accenderemo",
+          "voi": "accenderete",
+          "loro": "accenderanno"
+        },
+        "examples": [
+          "Accenderò la TV dopo cena."
+        ]
+      }
+    }
+  },
+  {
+    "id": "vocab-colazione",
+    "kind": "vocab",
+    "order": 430,
+    "category": "noun",
+    "english": "breakfast",
+    "italian": "colazione",
+    "article": "la",
+    "gender": "feminine",
+    "plural": "colazioni",
+    "activeRecall": {
+      "family": "Breakfast",
+      "detail": "Noun · the meal"
+    },
+    "notes": [
+      { "label": "Noun ↔ expression", "value": "la colazione ↔ fare colazione" }
+    ],
+    "examples": [
+      "La colazione è pronta."
+    ]
+  },
+  {
+    "id": "phrase-fare-colazione",
+    "kind": "vocab",
+    "order": 440,
+    "category": "expression",
+    "english": "have breakfast",
+    "italian": "fare colazione",
+    "activeRecall": {
+      "family": "Breakfast",
+      "detail": "Action · fare + colazione"
+    },
+    "notes": [
+      { "label": "Noun ↔ expression", "value": "la colazione ↔ fare colazione" },
+      { "label": "Verb", "value": "fare → faccio · ho fatto · farò" }
+    ],
+    "examples": [
+      "Faccio colazione alle otto.",
+      "Ho fatto colazione al bar.",
+      "Farò colazione a casa."
+    ]
+  },
+  {
+    "id": "vocab-pranzo",
+    "kind": "vocab",
+    "order": 450,
+    "category": "noun",
+    "english": "lunch",
+    "italian": "pranzo",
+    "article": "il",
+    "gender": "masculine",
+    "plural": "pranzi",
+    "activeRecall": {
+      "family": "Lunch",
+      "detail": "Noun · the meal"
+    },
+    "notes": [
+      { "label": "Noun ↔ verb", "value": "il pranzo ↔ pranzare" }
+    ],
+    "examples": [
+      "Il pranzo è pronto."
+    ]
+  },
+  {
+    "id": "verb-pranzare",
+    "kind": "verb",
+    "order": 460,
+    "english": "have lunch / eat lunch",
+    "italian": "pranzare",
+    "activeRecall": {
+      "family": "Lunch",
+      "detail": "Verb · have lunch"
+    },
+    "notes": [
+      { "label": "Noun ↔ verb", "value": "il pranzo ↔ pranzare" }
+    ],
+    "tenses": {
+      "presente": {
+        "label": "Present",
+        "forms": {
+          "io": "pranzo",
+          "tu": "pranzi",
+          "luiLei": "pranza",
+          "noi": "pranziamo",
+          "voi": "pranzate",
+          "loro": "pranzano"
+        },
+        "examples": [
+          "Pranzo a mezzogiorno."
+        ]
+      },
+      "passato_prossimo": {
+        "label": "Passato prossimo",
+        "forms": {
+          "io": "ho pranzato",
+          "tu": "hai pranzato",
+          "luiLei": "ha pranzato",
+          "noi": "abbiamo pranzato",
+          "voi": "avete pranzato",
+          "loro": "hanno pranzato"
+        },
+        "examples": [
+          "Ho pranzato con un amico."
+        ]
+      },
+      "futuro_semplice": {
+        "label": "Future",
+        "forms": {
+          "io": "pranzerò",
+          "tu": "pranzerai",
+          "luiLei": "pranzerà",
+          "noi": "pranzeremo",
+          "voi": "pranzerete",
+          "loro": "pranzeranno"
+        },
+        "examples": [
+          "Pranzerò a casa."
+        ]
+      }
+    }
+  },
+  {
+    "id": "vocab-cena",
+    "kind": "vocab",
+    "order": 470,
+    "category": "noun",
+    "english": "dinner",
+    "italian": "cena",
+    "article": "la",
+    "gender": "feminine",
+    "plural": "cene",
+    "activeRecall": {
+      "family": "Dinner",
+      "detail": "Noun · the meal"
+    },
+    "notes": [
+      { "label": "Noun ↔ verb", "value": "la cena ↔ cenare" }
+    ],
+    "examples": [
+      "La cena è pronta."
+    ]
+  },
+  {
+    "id": "verb-cenare",
+    "kind": "verb",
+    "order": 480,
+    "english": "have dinner / eat dinner",
+    "italian": "cenare",
+    "activeRecall": {
+      "family": "Dinner",
+      "detail": "Verb · have dinner"
+    },
+    "notes": [
+      { "label": "Noun ↔ verb", "value": "la cena ↔ cenare" }
+    ],
+    "tenses": {
+      "presente": {
+        "label": "Present",
+        "forms": {
+          "io": "ceno",
+          "tu": "ceni",
+          "luiLei": "cena",
+          "noi": "ceniamo",
+          "voi": "cenate",
+          "loro": "cenano"
+        },
+        "examples": [
+          "Ceno alle otto."
+        ]
+      },
+      "passato_prossimo": {
+        "label": "Passato prossimo",
+        "forms": {
+          "io": "ho cenato",
+          "tu": "hai cenato",
+          "luiLei": "ha cenato",
+          "noi": "abbiamo cenato",
+          "voi": "avete cenato",
+          "loro": "hanno cenato"
+        },
+        "examples": [
+          "Ho cenato al ristorante."
+        ]
+      },
+      "futuro_semplice": {
+        "label": "Future",
+        "forms": {
+          "io": "cenerò",
+          "tu": "cenerai",
+          "luiLei": "cenerà",
+          "noi": "ceneremo",
+          "voi": "cenerete",
+          "loro": "ceneranno"
+        },
+        "examples": [
+          "Cenerò con gli amici."
+        ]
+      }
+    }
   }
 ];

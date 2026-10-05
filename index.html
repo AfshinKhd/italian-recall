@@ -12,6 +12,7 @@
       --text:#1d211f; --muted:#6d746f; --line:#dedbd3; --accent:#1c7054;
       --accent-2:#165a45; --soft:#e8f2ed; --warning:#8c5b12; --danger:#9c3f3f;
       --shadow:0 20px 50px rgba(36,43,39,.10); --radius:24px;
+      --blue:#2b628d; --blue-soft:#edf4fa;
     }
     @media (prefers-color-scheme: dark) {
       :root {
@@ -19,6 +20,7 @@
         --text:#f0f2ef; --muted:#a5ada8; --line:#39403b; --accent:#68c49f;
         --accent-2:#8ed7b9; --soft:#263c33; --warning:#e2b35e; --danger:#ec9393;
         --shadow:0 20px 50px rgba(0,0,0,.30);
+        --blue:#a0cef3; --blue-soft:#243642;
       }
     }
     *{box-sizing:border-box}
@@ -55,7 +57,7 @@
     .notice.visible{display:block}.notice.error{border-color:rgba(156,63,63,.45);color:var(--danger)}
     .card{position:relative;min-height:450px;background:var(--surface-solid);border:1px solid var(--line);
       border-radius:var(--radius);box-shadow:var(--shadow);padding:clamp(22px,5vw,38px);display:flex;
-      flex-direction:column;justify-content:space-between;overflow:hidden}
+      flex-direction:column;justify-content:space-between;overflow:clip}
     .card::after{content:"";position:absolute;width:180px;height:180px;border-radius:50%;right:-80px;bottom:-95px;
       background:var(--soft);opacity:.7;pointer-events:none}
     .topline{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:25px;position:relative;z-index:1}
@@ -70,27 +72,43 @@
     .micro-hint{color:var(--muted);font-size:13px;margin-top:12px;min-height:20px}
     .answer{display:none;position:relative;z-index:1;margin-top:5px}.answer.visible{display:block}
     .answer-main{text-align:center;margin-bottom:16px}.answer-main .italian{font-size:clamp(30px,7vw,44px);font-weight:770;letter-spacing:-.04em}
-    .forms{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:17px 0}
+    .forms{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin:17px 0}
     .form{border:1px solid var(--line);border-radius:13px;padding:10px 11px;background:color-mix(in srgb,var(--surface-solid) 88%,var(--soft) 12%);min-width:0}
     .form span{display:block;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
     .form strong{display:block;font-size:16px;overflow-wrap:anywhere}
     .learning-details{display:grid;gap:10px;margin:15px auto 0;max-width:600px}
     .detail-box{display:none;border:1px solid var(--line);border-radius:13px;padding:11px 13px;background:var(--surface);font-size:12px;line-height:1.5}
-    .detail-box:not(:empty){display:block}.detail-box>strong,.detail-label{display:block;color:var(--accent-2);font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:5px}
+    .detail-box:not(:empty){display:block}.detail-box>strong,.detail-label{display:block;color:var(--accent-2);font-size:10px;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px}
     .detail-box ul{margin:0;padding-left:18px}.detail-box li+li{margin-top:4px}
-    .recall-map{display:grid;grid-template-columns:92px minmax(0,1fr);align-items:center;gap:22px;margin-top:9px;padding:5px 2px}
-    .recall-family,.recall-keyword{display:grid;place-items:center;text-align:center;border-radius:999px;border:1px solid var(--line)}
-    .recall-family{width:88px;height:88px;padding:9px;background:var(--soft);color:var(--accent-2);font-weight:780;font-size:11px;position:relative;z-index:1;box-shadow:0 6px 18px rgba(28,112,84,.09)}
-    .recall-family::after{content:"";position:absolute;left:100%;top:50%;width:23px;border-top:2px solid var(--line)}
-    .recall-branches{display:grid;gap:9px;position:relative;padding:2px 0}
-    .recall-branches::before{content:"";position:absolute;left:-12px;top:22px;bottom:22px;border-left:2px solid var(--line)}
-    .recall-branch{display:grid;grid-template-columns:minmax(68px,92px) minmax(0,1fr);align-items:center;gap:17px;position:relative}
-    .recall-branch::before{content:"";position:absolute;right:100%;top:50%;width:13px;border-top:2px solid var(--line)}
-    .recall-keyword{min-height:45px;padding:7px 9px;background:var(--surface-solid);font-weight:720;position:relative;z-index:1}
-    .recall-keyword::after{content:"";position:absolute;left:100%;top:50%;width:18px;border-top:1px solid var(--line)}
-    .recall-node-detail{display:block;border:1px solid var(--line);border-radius:10px;padding:8px 10px;background:var(--surface-solid);color:var(--muted);line-height:1.35;position:relative}
-    .recall-branch.current .recall-keyword{background:var(--accent);border-color:var(--accent);color:white;box-shadow:0 5px 14px rgba(28,112,84,.2)}
-    .recall-branch.current .recall-node-detail{border-color:color-mix(in srgb,var(--accent) 48%,var(--line));background:var(--soft);color:var(--text)}
+    .word-pair{display:grid;grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);align-items:center;gap:8px}
+    .word-form{margin:0;padding:11px 12px;border:1px solid var(--line);border-radius:12px;background:var(--surface-solid);min-width:0}
+    .word-form.plural{background:var(--blue-soft);border-color:color-mix(in srgb,var(--blue) 25%,var(--line))}
+    .word-form dt,.note-fact dt,.usage-note dt{color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:.05em}
+    .word-form dd{margin:4px 0 0;font-size:20px;font-weight:750;overflow-wrap:anywhere}
+    .word-form.plural dt,.word-form.plural dd{color:var(--blue)}
+    .word-pair-arrow{color:var(--muted);font-size:20px;text-align:center}
+    .note-facts{display:flex;gap:8px;flex-wrap:wrap;margin-top:9px}
+    .note-fact{display:flex;align-items:baseline;gap:7px;margin:0;padding:6px 10px;border-radius:9px;background:var(--soft);min-width:0}
+    .note-fact dd{margin:0;color:var(--accent-2);font-weight:700;overflow-wrap:anywhere}
+    .usage-note{margin:9px 0 0;padding:10px 12px;border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:4px;background:var(--surface-solid)}
+    .usage-note dt{color:var(--accent-2);font-weight:700}
+    .usage-note dd{margin:3px 0 0;overflow-wrap:anywhere}
+    .recall-map{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));align-items:start;column-gap:28px;row-gap:14px;position:relative;padding:7px 6px}
+    .recall-lines{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+    .recall-lines path{fill:none;stroke:var(--line);stroke-width:2;stroke-linecap:round}
+    .recall-family{grid-column:1/-1;justify-self:center;display:grid;place-items:center;text-align:center;width:100px;min-height:100px;padding:12px;
+      border-radius:50%;border:1px solid var(--line);background:var(--surface-solid);color:var(--muted);font-weight:780;font-size:12px;line-height:1.3;position:relative;overflow-wrap:anywhere}
+    .recall-branch{--node-color:var(--text);--node-bg:var(--surface-solid);--node-border:var(--line);display:flex;flex-direction:column;align-items:center;gap:8px;position:relative;min-width:0}
+    .recall-branch.current{--node-color:var(--accent-2);--node-bg:var(--soft);--node-border:var(--accent)}
+    .recall-branch.centered{grid-column:1/-1;width:calc((100% - 28px)/2);justify-self:center}
+    .recall-keyword{display:grid;place-items:center;gap:3px;min-height:48px;max-width:100%;padding:9px 17px;border-radius:999px;
+      border:1px solid var(--node-border);background:var(--node-bg);color:var(--node-color);text-align:center;line-height:1.2;overflow-wrap:anywhere}
+    .recall-keyword strong{font-size:15px;font-weight:750}
+    .recall-node-detail{display:grid;place-items:center;width:100%;max-width:220px;min-height:52px;padding:10px 12px;border:1px solid var(--node-border);
+      border-radius:4px;background:var(--node-bg);color:var(--muted);text-align:center;font-weight:500;font-size:12px;line-height:1.45;overflow-wrap:anywhere}
+    .recall-branch.current .recall-keyword{border-width:2px}
+    .recall-branch.current .recall-node-detail{color:var(--accent-2);font-weight:650}
+    .recall-current{font-size:9px;font-weight:650;letter-spacing:.03em;text-transform:uppercase}
     .controls{position:relative;z-index:1;margin-top:26px}
     .show-btn{width:100%;border:none;border-radius:15px;background:var(--accent);color:white;padding:15px 18px;font-weight:750;
       box-shadow:0 10px 22px rgba(28,112,84,.18)}
@@ -121,11 +139,11 @@
     @media(max-width:620px){
       body{padding-left:12px;padding-right:12px}.brand p{display:none}.sync-chip span{display:none}.sync-chip{padding:9px}
       .stats{gap:7px}.stat{padding:10px 11px}.stat strong{font-size:18px}.card{min-height:500px;border-radius:20px;padding:22px 17px}
-      .topline{margin-bottom:20px}.forms{grid-template-columns:repeat(2,1fr)}.rating{gap:6px}.rate-btn{padding:11px 2px 9px}
+      .topline{margin-bottom:20px}.rating{gap:6px}.rate-btn{padding:11px 2px 9px}
       .rate-btn strong{font-size:11px}.rate-btn span{font-size:9px}
-      .recall-map{grid-template-columns:76px minmax(0,1fr);gap:17px}.recall-family{width:72px;height:72px;font-size:10px}
-      .recall-family::after{width:18px}.recall-branches::before{left:-9px}.recall-branch{grid-template-columns:72px minmax(0,1fr);gap:13px}
-      .recall-keyword{font-size:10px;padding:6px}.recall-keyword::after{width:14px}.recall-node-detail{font-size:10px;padding:7px 8px}
+      .recall-map{column-gap:18px;padding:7px 0}.recall-family{width:82px;min-height:82px;font-size:11px;padding:9px}
+      .recall-branch.centered{width:calc((100% - 18px)/2)}.recall-keyword{padding:9px 12px}.recall-keyword strong{font-size:13px}
+      .recall-node-detail{padding:9px 8px;font-size:11px}.word-form{padding:10px}.word-form dd{font-size:18px}
     }
     @media(max-width:380px){.prompt{font-size:39px}.forms{gap:6px}.form{padding:9px}.stat{padding:9px}.button-row{grid-template-columns:1fr}}
   </style>
@@ -252,8 +270,9 @@
     <div class="field">
       <label for="newLimitSelect">Maximum new review units per session</label>
       <select id="newLimitSelect">
+        <option value="9999" selected>All (default)</option>
         <option value="5">5</option><option value="10">10</option><option value="15">15</option>
-        <option value="25">25</option><option value="9999">All</option>
+        <option value="25">25</option>
       </select>
     </div>
 

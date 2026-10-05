@@ -15,7 +15,8 @@
     direction: "en-it",
     type: "all",
     tense: "presente",
-    newLimit: 10,
+    newLimit: 9999,
+    sessionLimitVersion: 1,
     studyOrder: "ordered"
   };
 
@@ -53,11 +54,18 @@
       ? raw.settings
       : {};
 
+    const settings = { ...DEFAULT_SETTINGS, ...incomingSettings };
+    // Replace the old default once; later choices of 10 remain saved.
+    if (!incomingSettings.sessionLimitVersion && settings.newLimit === 10) {
+      settings.newLimit = DEFAULT_SETTINGS.newLimit;
+    }
+    settings.sessionLimitVersion = DEFAULT_SETTINGS.sessionLimitVersion;
+
     return {
       version: 3,
       updatedAt: Number(raw.updatedAt) || 0,
       settingsUpdatedAt: Number(raw.settingsUpdatedAt || raw.updatedAt) || 0,
-      settings: { ...DEFAULT_SETTINGS, ...incomingSettings },
+      settings,
       progress: raw.progress && typeof raw.progress === "object" ? raw.progress : {}
     };
   }
@@ -212,8 +220,8 @@
       else future.push(unit);
     }
 
-    const newLimit = Number(state.doc.settings.newLimit) || 10;
-    const selectedFresh = fresh.slice(0, newLimit);
+    const newLimit = Number(state.doc.settings.newLimit) || DEFAULT_SETTINGS.newLimit;
+    const selectedFresh = newLimit === 9999 ? fresh : fresh.slice(0, newLimit);
     let queue;
 
     if (studyAhead && due.length === 0 && selectedFresh.length === 0) {
@@ -300,10 +308,10 @@
       const forms = unit.tenseData.forms || {};
       [
         ["io", forms.io],
-        ["tu", forms.tu],
-        ["lui / lei", forms.luiLei],
         ["noi", forms.noi],
+        ["tu", forms.tu],
         ["voi", forms.voi],
+        ["lui / lei", forms.luiLei],
         ["loro", forms.loro]
       ].forEach(([person, value]) => {
         const box = document.createElement("div");
@@ -359,18 +367,64 @@
       ? [...tenseExamples, ...asList(word.examples)]
       : [...asList(word.example), ...asList(word.examples)];
     const notes = [
-      ...(word.article ? [`Article: ${word.article}`] : []),
-      ...(word.gender ? [`Gender: ${word.gender}`] : []),
-      ...(word.plural ? [`Plural: ${word.plural}`] : []),
       ...asList(tenseData?.note),
       ...asList(tenseData?.notes),
       ...asList(word.note),
       ...asList(word.notes)
     ];
 
-    renderLabeledList("notes", notes.length === 1 ? "Note" : "Notes", notes);
+    renderWordNotes(word, notes);
     renderLabeledList("examples", examples.length === 1 ? "Example" : "Examples", examples);
     renderActiveRecall(word);
+  }
+
+  function makeNoteFact(label, value, className = "note-fact") {
+    const fact = document.createElement("dl");
+    fact.className = className;
+    const term = document.createElement("dt");
+    term.textContent = label;
+    const description = document.createElement("dd");
+    description.textContent = value;
+    fact.append(term, description);
+    return fact;
+  }
+
+  function renderWordNotes(word, notes) {
+    const target = el("notes");
+    const hasFacts = word.article || word.gender || word.plural;
+    if (!hasFacts && !notes.length) return;
+
+    const heading = document.createElement("strong");
+    heading.textContent = hasFacts ? "Word details" : "Remember";
+    target.appendChild(heading);
+
+    if (word.plural) {
+      const pair = document.createElement("div");
+      pair.className = "word-pair";
+      const arrow = document.createElement("span");
+      arrow.className = "word-pair-arrow";
+      arrow.textContent = "→";
+      arrow.setAttribute("aria-hidden", "true");
+      pair.append(
+        makeNoteFact("Singular", word.italian, "word-form"),
+        arrow,
+        makeNoteFact("Plural", word.plural, "word-form plural")
+      );
+      target.appendChild(pair);
+    }
+
+    const facts = document.createElement("div");
+    facts.className = "note-facts";
+    if (word.article) facts.appendChild(makeNoteFact("Article", word.article));
+    if (word.gender) facts.appendChild(makeNoteFact("Gender", word.gender));
+    if (facts.childElementCount) target.appendChild(facts);
+
+    notes.forEach(note => {
+      // Structured notes are optional; existing plain strings still work.
+      const label = typeof note === "object" ? (note.label || "Usage") : "Usage";
+      const value = typeof note === "object" ? note.value : note;
+      if (value) target.appendChild(makeNoteFact(label, value, "usage-note"));
+    });
   }
 
   function renderActiveRecall(word) {
@@ -383,34 +437,80 @@
     const section = el("activeRecall");
     const title = document.createElement("strong");
     title.className = "detail-label";
-    title.textContent = "Active Recall family";
+    title.textContent = "Recall connections";
 
     const map = document.createElement("div");
     map.className = "recall-map";
+    const lines = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+    lines.classList.add("recall-lines");
+    lines.setAttribute("aria-hidden", "true");
+    map.appendChild(lines);
+
     const family = document.createElement("div");
     family.className = "recall-family";
     family.textContent = recall.family;
 
-    const branches = document.createElement("div");
-    branches.className = "recall-branches";
-    related.forEach(candidate => {
+    // Place the family between the upper and lower branches, like a mind map.
+    const split = Math.max(1, Math.floor(related.length / 2));
+    related.forEach((candidate, index) => {
+      if (index === split) map.appendChild(family);
       const branch = document.createElement("div");
-      branch.className = `recall-branch${candidate.id === word.id ? " current" : ""}`;
+      const current = candidate.id === word.id;
+      branch.className = `recall-branch${current ? " current" : ""}`;
+      const groupSize = index < split ? split : related.length - split;
+      if (groupSize % 2 === 1 && (index === split - 1 || index === related.length - 1)) {
+        branch.classList.add("centered");
+      }
 
-      const keyword = document.createElement("span");
+      const keyword = document.createElement("div");
       keyword.className = "recall-keyword";
-      keyword.textContent = candidate.italian;
+      const label = document.createElement("strong");
+      label.textContent = candidate.italian;
+      keyword.appendChild(label);
+      if (current) {
+        const marker = document.createElement("span");
+        marker.className = "recall-current";
+        marker.textContent = "This card";
+        keyword.appendChild(marker);
+      }
 
       const detail = document.createElement("span");
       detail.className = "recall-node-detail";
-      detail.textContent = candidate.activeRecall.detail || candidate.activeRecall.position || "Related word";
+      detail.textContent = candidate.activeRecall.detail || candidate.activeRecall.position || candidate.english;
 
       branch.append(keyword, detail);
-      branches.appendChild(branch);
+      map.appendChild(branch);
     });
 
-    map.append(family, branches);
+    if (!family.parentNode) map.appendChild(family);
     section.append(title, map);
+  }
+
+  function drawRecallConnections() {
+    const map = el("activeRecall").querySelector(".recall-map");
+    if (!map || !state.revealed) return;
+    const bounds = map.getBoundingClientRect();
+    if (!bounds.width || !bounds.height) return;
+    const lines = map.querySelector(".recall-lines");
+    lines.replaceChildren();
+    lines.setAttribute("viewBox", `0 0 ${bounds.width} ${bounds.height}`);
+    const centerOf = node => {
+      const box = node.getBoundingClientRect();
+      return { x: box.left - bounds.left + box.width / 2, y: box.top - bounds.top + box.height / 2 };
+    };
+    const hub = centerOf(map.querySelector(".recall-family"));
+    map.querySelectorAll(".recall-keyword").forEach(keyword => {
+      const point = centerOf(keyword);
+      const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+      path.setAttribute("d", `M ${hub.x} ${hub.y} Q ${point.x} ${hub.y} ${point.x} ${point.y}`);
+      lines.appendChild(path);
+    });
+  }
+
+  if (typeof ResizeObserver === "function") {
+    new ResizeObserver(drawRecallConnections).observe(el("activeRecall"));
+  } else {
+    window.addEventListener("resize", drawRecallConnections);
   }
 
   function reveal() {
@@ -419,6 +519,7 @@
     el("answer").classList.add("visible");
     el("rating").classList.add("visible");
     el("showBtn").style.display = "none";
+    requestAnimationFrame(drawRecallConnections);
   }
 
   function intervalsFor(unit) {
